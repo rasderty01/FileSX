@@ -17,10 +17,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  AlertTriangle,
   FileTextIcon,
   GanttChartIcon,
   ImageIcon,
   MoreVertical,
+  StarIcon,
   Trash,
 } from "lucide-react";
 
@@ -44,6 +46,7 @@ import Image from "next/image";
 
 function FileCardActions({ file }: { file: Doc<"files"> }) {
   const deleteFile = useMutation(api.file.deleteFile);
+  const favorite = useMutation(api.file.toggleFavorite);
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   return (
@@ -83,7 +86,15 @@ function FileCardActions({ file }: { file: Doc<"files"> }) {
         <DropdownMenuContent>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="flex items-center gap-1 text-primary"
+            onClick={() => favorite({ fileId: file._id })}
+          >
+            <StarIcon className="size-4" />
+            Favorite
+          </DropdownMenuItem>
 
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             className="flex items-center gap-1 text-destructive"
             onClick={() => setOpen(true)}
@@ -127,13 +138,20 @@ export function FileCard({ file }: { file: Doc<"files"> }) {
             width={200}
             height={100}
             src={getFileUrl(file.fileId)}
+            className="rounded"
           />
         )}
         {file.type === "csv" && (
-          <Image alt="a csv file" width={200} height={100} src={`/csv.svg`} />
+          <Image alt="a csv file" width={200} height={200} src={`/csv.svg`} />
         )}
         {file.type === "pdf" && (
-          <Image alt="a pdf file" width={200} height={100} src={`/pdf.svg`} />
+          <Image
+            alt="a pdf file"
+            width={200}
+            height={200}
+            src={`/pdf.svg`}
+            className=""
+          />
         )}
       </CardContent>
       <CardFooter className="flex justify-center">
