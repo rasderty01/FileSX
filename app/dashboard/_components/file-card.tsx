@@ -44,7 +44,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import Image from "next/image";
 
-function FileCardActions({ file }: { file: Doc<"files"> }) {
+function FileCardActions({
+  file,
+  isFavorited,
+}: {
+  file: Doc<"files">;
+  isFavorited: boolean;
+}) {
   const deleteFile = useMutation(api.file.deleteFile);
   const favorite = useMutation(api.file.toggleFavorite);
   const { toast } = useToast();
@@ -90,8 +96,15 @@ function FileCardActions({ file }: { file: Doc<"files"> }) {
             className="flex items-center gap-1 text-primary"
             onClick={() => favorite({ fileId: file._id })}
           >
-            <StarIcon className="size-4" />
-            Favorite
+            {isFavorited ? (
+              <div className="flex items-center gap-1">
+                <StarIcon className="size-4" fill="yellow" /> Unfavorite
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                <StarIcon className="size-4" /> Favorite{" "}
+              </div>
+            )}
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
@@ -112,12 +125,22 @@ function getFileUrl(fileId: Id<"_storage">) {
   return `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/storage/${fileId}`;
 }
 
-export function FileCard({ file }: { file: Doc<"files"> }) {
+export function FileCard({
+  file,
+  favorites,
+}: {
+  file: Doc<"files">;
+  favorites: Doc<"favorites">[];
+}) {
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <FileTextIcon />,
     csv: <GanttChartIcon />,
   } as Record<Doc<"files">["type"], ReactNode>;
+
+  const isFavorited = favorites.some(
+    (favorite) => favorite.fileId === file._id,
+  );
 
   return (
     <Card>
@@ -127,7 +150,7 @@ export function FileCard({ file }: { file: Doc<"files"> }) {
           {file.name}
         </CardTitle>
         <div className="absolute right-5 top-5">
-          <FileCardActions file={file} />
+          <FileCardActions isFavorited={isFavorited} file={file} />
         </div>
         {/* <CardDescription>Card Description</CardDescription> */}
       </CardHeader>
