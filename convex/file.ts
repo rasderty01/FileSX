@@ -12,11 +12,7 @@ export const generateUploadUrl = mutation(async (ctx) => {
   return await ctx.storage.generateUploadUrl();
 });
 
-async function hasAccessToOrg(
-  ctx: QueryCtx | MutationCtx,
-
-  orgId: string,
-) {
+async function hasAccessToOrg(ctx: QueryCtx | MutationCtx, orgId: string) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
     return null;
@@ -34,7 +30,8 @@ async function hasAccessToOrg(
   }
 
   const hasAccess =
-    user.orgIds.includes(orgId) || user.tokenIdentifier === orgId;
+    user.orgIds.some((item) => item.orgId === orgId) ||
+    user.tokenIdentifier === orgId;
 
   if (!hasAccess) {
     return null;
@@ -54,7 +51,7 @@ export const createFile = mutation({
     const hasAccess = await hasAccessToOrg(ctx, args.orgId);
 
     if (!hasAccess) {
-      throw new ConvexError("You do not have access to this org ");
+      throw new ConvexError("You do not have access to this organization");
     }
 
     await ctx.db.insert("files", {
@@ -116,6 +113,14 @@ export const deleteFile = mutation({
 
     if (!access) {
       throw new ConvexError("You do not have access to this file");
+    }
+
+    const isAdmin =
+      access.user.orgIds.find((org) => org.orgId === access.file.orgId)
+        ?.role === "admin";
+
+    if (!isAdmin) {
+      throw new ConvexError("You do not have permission to delete this file");
     }
 
     await ctx.db.delete(args.fileId);
@@ -186,7 +191,7 @@ async function hasAccessToFile(
   const hasAccess = await hasAccessToOrg(ctx, file.orgId);
 
   if (!hasAccess) {
-    throw new ConvexError("You do not have access to this org ");
+    throw new ConvexError("You do not have access to this organization");
   }
 
   return { user: hasAccess.user, file };

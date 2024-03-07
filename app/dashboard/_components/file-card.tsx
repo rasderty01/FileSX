@@ -43,6 +43,7 @@ import { api } from "@/convex/_generated/api";
 import { useToast } from "@/components/ui/use-toast";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import Image from "next/image";
+import { Protect } from "@clerk/nextjs";
 
 function FileCardActions({
   file,
@@ -107,14 +108,16 @@ function FileCardActions({
             )}
           </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="flex items-center gap-1 text-destructive"
-            onClick={() => setOpen(true)}
-          >
-            <Trash className="size-4" />
-            Delete
-          </DropdownMenuItem>
+          <Protect role="org:admin" fallback={<></>}>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="flex items-center gap-1 text-destructive"
+              onClick={() => setOpen(true)}
+            >
+              <Trash className="size-4" />
+              Delete
+            </DropdownMenuItem>
+          </Protect>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

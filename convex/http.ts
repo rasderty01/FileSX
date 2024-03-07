@@ -34,6 +34,14 @@ http.route({
           await ctx.runMutation(internal.users.addOrgIdToUser, {
             tokenIdentifier: `https://fitting-asp-7.clerk.accounts.dev|${result.data.public_user_data.user_id}`,
             orgId: result.data.organization.id,
+            role: result.data.role === "admin" ? "admin" : "member",
+          });
+
+        case "organizationMembership.updated":
+          await ctx.runMutation(internal.users.updateRoleInOrgForUser, {
+            tokenIdentifier: `https://fitting-asp-7.clerk.accounts.dev|${result.data.public_user_data.user_id}`,
+            orgId: result.data.organization.id,
+            role: result.data.role === "org:admin" ? "admin" : "member",
           });
 
           break;
@@ -43,6 +51,7 @@ http.route({
         status: 200,
       });
     } catch (err) {
+      console.error(err);
       return new Response("Webhook Error", {
         status: 400,
       });
