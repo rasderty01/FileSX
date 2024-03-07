@@ -18,12 +18,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   AlertTriangle,
+  DownloadIcon,
   FileTextIcon,
   GanttChartIcon,
   ImageIcon,
   MoreVertical,
   StarIcon,
   Trash,
+  Undo2Icon,
 } from "lucide-react";
 
 import {
@@ -38,12 +40,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ReactNode, useState } from "react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useToast } from "@/components/ui/use-toast";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import Image from "next/image";
 import { Protect } from "@clerk/nextjs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { format, formatDistance, formatRelative, subDays } from "date-fns";
 
 function FileCardActions({
   file,
@@ -53,7 +57,9 @@ function FileCardActions({
   isFavorited: boolean;
 }) {
   const deleteFile = useMutation(api.file.deleteFile);
+  const restoreFile = useMutation(api.file.restoreFile);
   const favorite = useMutation(api.file.toggleFavorite);
+
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   return (
@@ -63,8 +69,8 @@ function FileCardActions({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+              This action will send the file to Trash for our deletion process.
+              Files are deleted periodically.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -73,8 +79,8 @@ function FileCardActions({
               onClick={async () => {
                 await deleteFile({ fileId: file._id });
                 toast({
-                  title: "File deleted",
-                  description: "Your file has been deleted from the database.",
+                  title: "Sent to Trash",
+                  description: "Your file has been moved to the trash",
                   variant: "default",
                 });
                 setOpen(false);
@@ -95,6 +101,13 @@ function FileCardActions({
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="flex items-center gap-1 text-primary"
+            onClick={() => window.open(getFileUrl(file.fileId), "_blank")}
+          >
+            <DownloadIcon className="size-4" />
+            Download
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="flex items-center gap-1 text-primary"
             onClick={() => favorite({ fileId: file._id })}
           >
             {isFavorited ? (
@@ -111,11 +124,24 @@ function FileCardActions({
           <Protect role="org:admin" fallback={<></>}>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="flex items-center gap-1 text-destructive"
-              onClick={() => setOpen(true)}
+              className="flex items-center gap-1 "
+              onClick={() => {
+                if (file.shouldDelete) {
+                  restoreFile({ fileId: file._id });
+                } else {
+                  setOpen(true);
+                }
+              }}
             >
-              <Trash className="size-4" />
-              Delete
+              {file.shouldDelete ? (
+                <div className="flex items-center gap-1 text-green-500">
+                  <Undo2Icon className="size-4" /> Restore
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-destructive">
+                  <Trash className="size-4" /> Delete
+                </div>
+              )}
             </DropdownMenuItem>
           </Protect>
         </DropdownMenuContent>
@@ -135,6 +161,9 @@ export function FileCard({
   file: Doc<"files">;
   favorites: Doc<"favorites">[];
 }) {
+  const userProfile = useQuery(api.users.getUserProfile, {
+    userId: file.userId,
+  });
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <FileTextIcon />,
@@ -148,7 +177,7 @@ export function FileCard({
   return (
     <Card>
       <CardHeader className="relative">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 truncate text-base font-normal">
           <div className="flex justify-center">{typeIcons[file.type]}</div>
           {file.name}
         </CardTitle>
@@ -180,10 +209,19 @@ export function FileCard({
           />
         )}
       </CardContent>
-      <CardFooter className="flex justify-center">
-        <Button onClick={() => window.open(getFileUrl(file.fileId), "_blank")}>
-          Download
-        </Button>
+      <CardFooter className="flex flex-wrap gap-2">
+        <div className="flex w-44 items-center gap-2 text-xs">
+          <Avatar className="size-8">
+            <AvatarImage src={userProfile?.image} />
+            <AvatarFallback>
+              {userProfile?.name?.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          {userProfile?.name}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          Uploaded {formatRelative(new Date(file._creationTime), new Date())}
+        </div>
       </CardFooter>
     </Card>
   );

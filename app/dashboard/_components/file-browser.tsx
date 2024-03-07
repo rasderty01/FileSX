@@ -13,8 +13,43 @@ import { cn } from "@/lib/utils";
 import { FileCard } from "@/app/dashboard/_components/file-card";
 import UploadButton from "@/app/dashboard/_components/upload-button";
 import { SearchBar } from "@/app/dashboard/_components/search-bar";
+import { usePathname } from "next/navigation";
 
 function Placeholder() {
+  const pathName = usePathname();
+
+  if (pathName === "/dashboard/favorites") {
+    return (
+      <div className="mt-24 flex flex-col items-center gap-4">
+        <Image
+          alt="an image of a picture for adding files"
+          width={300}
+          height={300}
+          src="/favorite.svg"
+        />
+        <div className="text-2xl">You have no favorites, add one now!</div>
+        <UploadButton />
+      </div>
+    );
+  }
+
+  if (pathName === "/dashboard/trash") {
+    return (
+      <div className="mt-24 flex flex-col items-center gap-4">
+        <Image
+          alt="an image of a picture for adding files"
+          width={300}
+          height={300}
+          src="/Trash.svg"
+        />
+        <div className="text-2xl">
+          You have no deleted files for{" "}
+          <span className="text-destructive">permanent deletion!</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-24 flex flex-col items-center gap-4">
       <Image
@@ -32,9 +67,11 @@ function Placeholder() {
 export default function FileBrowser({
   title,
   favoritesOnly,
+  deletedOnly,
 }: {
   title: string;
   favoritesOnly?: boolean;
+  deletedOnly?: boolean;
 }) {
   const organization = useOrganization();
   const user = useUser();
@@ -53,7 +90,7 @@ export default function FileBrowser({
 
   const files = useQuery(
     api.file.getFiles,
-    orgId ? { orgId, query, favorites: favoritesOnly } : "skip",
+    orgId ? { orgId, query, favorites: favoritesOnly, deletedOnly } : "skip",
   );
 
   const isLoading = files === undefined;

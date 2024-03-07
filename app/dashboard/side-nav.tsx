@@ -2,7 +2,7 @@
 
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { FileIcon, StarIcon } from "lucide-react";
+import { FileIcon, StarIcon, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -27,6 +27,15 @@ export function SideNav() {
         })}
       >
         <StarIcon className="size-4" /> Favorites
+      </Link>
+
+      <Link
+        href={"/dashboard/trash"}
+        className={cn(buttonVariants({ variant: "link" }), "flex gap-2", {
+          "bg-muted": path.includes("/dashboard/trash"),
+        })}
+      >
+        <Trash2 className="size-4" /> Deleted
       </Link>
     </div>
   );

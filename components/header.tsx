@@ -13,6 +13,7 @@ import { Button } from "./ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Skeleton } from "./ui/skeleton";
+import { FileBox } from "lucide-react";
 
 export function Header() {
   const user = useUser();
@@ -24,8 +25,12 @@ export function Header() {
   return (
     <div className="bg-primary-freground border-b py-4">
       <div className="container mx-auto flex items-center justify-between">
-        <Link href={landingPage} className="text-3xl font-medium tracking-wide">
-          Filesxk
+        <Link
+          href={landingPage}
+          className="flex items-center gap-2 text-2xl font-medium tracking-tight"
+        >
+          <FileBox className="size-10" />
+          Fi Lestorage
         </Link>
         <div className="flex gap-2">
           <ClerkLoading>
