@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -168,6 +169,9 @@ export default function UploadButton() {
             </Form>
           </DialogDescription>
         </DialogHeader>
+        <DialogFooter className="text-xs text-muted-foreground">
+          {`Note: You can only upload ".png," ".pdf" and ".csv" file types!`}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
