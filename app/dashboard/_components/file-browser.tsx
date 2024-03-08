@@ -15,8 +15,23 @@ import { SearchBar } from "@/app/dashboard/_components/search-bar";
 import { usePathname } from "next/navigation";
 import { DataTable } from "./(file-table)/file-table";
 import { columns } from "./(file-table)/columns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Doc } from "@/convex/_generated/dataModel";
+import { Label } from "@/components/ui/label";
 
-function Placeholder() {
+function Placeholder({
+  type,
+  label,
+}: {
+  type: "image" | "pdf" | "csv" | "All";
+  label: string;
+}) {
   const pathName = usePathname();
 
   if (pathName === "/dashboard/favorites") {
@@ -44,8 +59,8 @@ function Placeholder() {
           src="/Trash.svg"
         />
         <div className="text-2xl">
-          You have no deleted files for{" "}
-          <span className="text-destructive">permanent deletion!</span>
+          You have deleted files marked for{" "}
+          <span className="text-destructive">deletion!</span>
         </div>
       </div>
     );
@@ -59,7 +74,7 @@ function Placeholder() {
         height={300}
         src="/no files.svg"
       />
-      <div className="text-2xl">You have no files, add one now!</div>
+      <div className="text-2xl">{label}</div>
       <UploadButton />
     </div>
   );
@@ -78,6 +93,7 @@ export default function FileBrowser({
   const user = useUser();
   const [query, setQuery] = useState("");
   const pathName = usePathname();
+  const [type, setType] = useState<Doc<"files">["type"] | "All">("All");
 
   let orgId: string | undefined = undefined;
 
@@ -92,7 +108,15 @@ export default function FileBrowser({
 
   const files = useQuery(
     api.file.getFiles,
-    orgId ? { orgId, query, favorites: favoritesOnly, deletedOnly } : "skip",
+    orgId
+      ? {
+          orgId,
+          type: type === "All" ? undefined : type,
+          query,
+          favorites: favoritesOnly,
+          deletedOnly,
+        }
+      : "skip",
   );
 
   const isLoading = files === undefined;
@@ -115,15 +139,36 @@ export default function FileBrowser({
       </div>
 
       <Tabs defaultValue="grid" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="grid" className="flex gap-1">
-            <Grid2X2 className="size-5" />
-            Grid
-          </TabsTrigger>
-          <TabsTrigger value="table" className="flex gap-1">
-            <Table2 className="size-5" /> Table
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between">
+          <TabsList className="mb-4">
+            <TabsTrigger value="grid" className="flex items-center gap-2">
+              <Grid2X2 className="size-5" />
+              Grid
+            </TabsTrigger>
+            <TabsTrigger value="table" className="flex items-center gap-2">
+              <Table2 className="size-5" /> Table
+            </TabsTrigger>
+          </TabsList>
+          <div className="flex items-center gap-2">
+            <Label className="mb-4" htmlFor="type-select">
+              Type Filter:
+            </Label>
+            <Select
+              value={type}
+              onValueChange={(newType) => setType(newType as any)}
+            >
+              <SelectTrigger id="type-select" className="mb-4 w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="image">Image</SelectItem>
+                <SelectItem value="csv">CSV</SelectItem>
+                <SelectItem value="pdf">PDF</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         {isLoading && (
           <div className="mt-24 flex flex-col items-center gap-4">
@@ -142,11 +187,24 @@ export default function FileBrowser({
           </div>
         </TabsContent>
         <TabsContent value="table">
-          <DataTable columns={columns} data={modifiedFiles} />
+          <div>
+            {!isLoading && modifiedFiles.length > 0 && (
+              <DataTable columns={columns} data={modifiedFiles} />
+            )}
+          </div>
         </TabsContent>
       </Tabs>
 
-      {files?.length === 0 && <Placeholder />}
+      {files?.length === 0 && (
+        <Placeholder
+          type={type}
+          label={
+            type === "All"
+              ? "You have no files, add one now!"
+              : `You have no ${type} files, add one now!`
+          }
+        />
+      )}
     </div>
   );
 }

@@ -27,7 +27,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useToast } from "@/components/ui/use-toast";
 import { Doc, Id } from "@/convex/_generated/dataModel";
@@ -48,6 +48,7 @@ export function FileCardActions({
   const deleteFile = useMutation(api.file.deleteFile);
   const restoreFile = useMutation(api.file.restoreFile);
   const favorite = useMutation(api.file.toggleFavorite);
+  const me = useQuery(api.users.getMe);
 
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -110,7 +111,12 @@ export function FileCardActions({
             )}
           </DropdownMenuItem>
 
-          <Protect role="org:admin" fallback={<></>}>
+          <Protect
+            condition={(check) => {
+              return check({ role: "org:admin" }) || file.userId === me?._id;
+            }}
+            fallback={<></>}
+          >
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="flex items-center gap-1 "
