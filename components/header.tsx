@@ -20,13 +20,16 @@ export function Header() {
   const path = usePathname();
   const router = useRouter();
 
-  const landingPage = "/";
+  const showDashboardButton =
+    path !== "/dashboard/files" &&
+    path !== "/dashboard/favorites" &&
+    path !== "/dashboard/trash";
 
   return (
     <div className="bg-primary-freground border-b py-4">
       <div className="container mx-auto flex items-center justify-between">
         <Link
-          href={landingPage}
+          href={"/"}
           className="flex items-center gap-2 text-2xl font-medium tracking-tight"
         >
           <FileBox className="size-10" />
@@ -35,14 +38,14 @@ export function Header() {
         <div className="flex gap-2">
           <ClerkLoading>
             <div className="flex h-12 items-center gap-4">
-              {landingPage === path && <Skeleton className="h-10 w-28 " />}
+              {showDashboardButton && <Skeleton className="h-10 w-28 " />}
               <Skeleton className="h-10 w-48 " />
               <Skeleton className="size-9 rounded-full" />
             </div>
           </ClerkLoading>
           <SignedIn>
             <div className="flex items-center gap-4">
-              {landingPage === path && (
+              {showDashboardButton && (
                 <Button
                   variant={"default"}
                   size={"sm"}
@@ -55,7 +58,7 @@ export function Header() {
                 <OrganizationSwitcher />
               </div>
 
-              <UserButton />
+              <UserButton afterSignOutUrl="/" />
             </div>
           </SignedIn>
           <SignedOut>
