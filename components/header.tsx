@@ -3,7 +3,6 @@ import {
   ClerkLoading,
   OrganizationSwitcher,
   SignInButton,
-  SignOutButton,
   SignedIn,
   SignedOut,
   UserButton,
@@ -16,7 +15,6 @@ import { Skeleton } from "./ui/skeleton";
 import { FileBox } from "lucide-react";
 
 export function Header() {
-  const user = useUser();
   const path = usePathname();
   const router = useRouter();
 
@@ -62,7 +60,11 @@ export function Header() {
             </div>
           </SignedIn>
           <SignedOut>
-            <SignInButton mode="modal">
+            <SignInButton
+              mode="modal"
+              afterSignInUrl="/dashboard/files"
+              afterSignUpUrl="/dashboard/files"
+            >
               <Button>Sign In</Button>
             </SignInButton>
           </SignedOut>

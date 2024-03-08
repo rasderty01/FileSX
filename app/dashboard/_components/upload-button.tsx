@@ -56,8 +56,26 @@ export default function UploadButton() {
   async function onSubmit(data: z.infer<typeof formSchema>) {
     console.log(data);
     if (!orgId) return;
+
+    const types = {
+      "image/png": "image",
+      "application/pdf": "pdf",
+      "text/csv": "csv",
+    } as Record<string, Doc<"files">["type"]>;
+
     const postUrl = await generateUploadUrl();
     const fileType = data.file[0].type;
+    //check for file type
+
+    if (fileType in types === false) {
+      toast({
+        title: "Invalid file type",
+        description: "Only png, pdf and csv files are allowed",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const res = await fetch(postUrl, {
       method: "Post",
       headers: {
@@ -66,12 +84,6 @@ export default function UploadButton() {
       body: data.file[0],
     });
     const { storageId } = await res.json();
-
-    const types = {
-      "image/png": "image",
-      "application/pdf": "pdf",
-      "text/csv": "csv",
-    } as Record<string, Doc<"files">["type"]>;
 
     try {
       await createFile({
