@@ -1,4 +1,5 @@
 import { ConvexError, v } from "convex/values";
+import { Doc, Id } from "./_generated/dataModel";
 import {
   MutationCtx,
   QueryCtx,
@@ -7,7 +8,6 @@ import {
   query,
 } from "./_generated/server";
 import { fileTypes } from "./schema";
-import { Doc, Id } from "./_generated/dataModel";
 
 export const generateUploadUrl = mutation(async (ctx) => {
   const identity = await ctx.auth.getUserIdentity();
@@ -250,3 +250,10 @@ async function hasAccessToFile(
 
   return { user: hasAccess.user, file };
 }
+
+export const getFileUrl = query({
+  args: { fileId: v.id("_storage") },
+  handler: async (ctx, args) => {
+    return await ctx.storage.getUrl(args.fileId);
+  },
+});

@@ -1,21 +1,5 @@
 "use client";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  DownloadIcon,
-  MoreVertical,
-  StarIcon,
-  Trash,
-  Undo2Icon,
-} from "lucide-react";
-
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -25,17 +9,29 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
-import { Doc, Id } from "@/convex/_generated/dataModel";
-
+import { api } from "@/convex/_generated/api";
+import { Doc } from "@/convex/_generated/dataModel";
 import { Protect } from "@clerk/nextjs";
-
-export function getFileUrl(fileId: Id<"_storage">) {
-  return `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/storage/${fileId}`;
-}
+import copy from "clipboard-copy";
+import { useMutation, useQuery } from "convex/react";
+import {
+  CopyIcon,
+  DownloadIcon,
+  MoreVertical,
+  StarIcon,
+  Trash,
+  Undo2Icon,
+} from "lucide-react";
+import { useState } from "react";
 
 export function FileCardActions({
   file,
@@ -48,9 +44,30 @@ export function FileCardActions({
   const restoreFile = useMutation(api.file.restoreFile);
   const favorite = useMutation(api.file.toggleFavorite);
   const me = useQuery(api.users.getMe);
+  const fileUrl = useQuery(api.file.getFileUrl, { fileId: file.fileId });
 
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+
+  const handleCopyPublicUrl = async () => {
+    if (fileUrl) {
+      try {
+        await copy(fileUrl);
+        toast({
+          title: "URL Copied",
+          description: "The public URL has been copied to your clipboard",
+          variant: "default",
+        });
+      } catch (err) {
+        toast({
+          title: "Copy Failed",
+          description: "Failed to copy the URL. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   return (
     <>
       <AlertDialog open={open} onOpenChange={setOpen}>
@@ -90,10 +107,17 @@ export function FileCardActions({
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="flex items-center gap-1 text-primary"
-            onClick={() => window.open(getFileUrl(file.fileId), "_blank")}
+            onClick={() => fileUrl && window.open(fileUrl, "_blank")}
           >
             <DownloadIcon className="size-4" />
             Download
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="flex items-center gap-1 text-primary"
+            onClick={handleCopyPublicUrl}
+          >
+            <CopyIcon className="size-4" />
+            Copy Public URL
           </DropdownMenuItem>
           <DropdownMenuItem
             className="flex items-center gap-1 text-primary"

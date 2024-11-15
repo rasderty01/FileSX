@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
   CardContent,
@@ -5,17 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-import { FileTextIcon, GanttChartIcon, ImageIcon } from "lucide-react";
-
-import { ReactNode } from "react";
-import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
-import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useQuery } from "convex/react";
 import { formatRelative } from "date-fns";
-import { FileCardActions, getFileUrl } from "./file-actions";
+import { FileTextIcon, GanttChartIcon, ImageIcon } from "lucide-react";
+import Image from "next/image";
+import { ReactNode } from "react";
+import { FileCardActions } from "./file-actions";
 
 export function FileCard({
   file,
@@ -27,6 +25,8 @@ export function FileCard({
   const userProfile = useQuery(api.users.getUserProfile, {
     userId: file.userId,
   });
+  const fileUrl = useQuery(api.file.getFileUrl, { fileId: file.fileId });
+
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <FileTextIcon />,
@@ -43,27 +43,26 @@ export function FileCard({
         <div className="absolute right-5 top-5">
           <FileCardActions isFavorited={file.isFavorited} file={file} />
         </div>
-        {/* <CardDescription>Card Description</CardDescription> */}
       </CardHeader>
       <CardContent className="flex h-[200px] items-center justify-center">
-        {file.type === "image" && (
+        {file.type === "image" && fileUrl && (
           <Image
             alt={file.name}
             width={200}
             height={100}
-            src={getFileUrl(file.fileId)}
+            src={fileUrl}
             className="rounded"
           />
         )}
         {file.type === "csv" && (
-          <Image alt="a csv file" width={200} height={200} src={`/csv.svg`} />
+          <Image alt="a csv file" width={200} height={200} src="/csv.svg" />
         )}
         {file.type === "pdf" && (
           <Image
             alt="a pdf file"
             width={200}
             height={200}
-            src={`/pdf.svg`}
+            src="/pdf.svg"
             className=""
           />
         )}
