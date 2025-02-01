@@ -167,7 +167,12 @@ export default function LandingPage() {
                     /month
                   </span>
                 </p>
-                <SignUpButton>
+                <SignUpButton
+                  fallbackRedirectUrl={"/dashboard/files"}
+                  forceRedirectUrl={"/dashboard/files"}
+                  signInFallbackRedirectUrl={"/dashboard/files"}
+                  signInForceRedirectUrl={"/dashboard/files"}
+                >
                   <Button
                     variant={"default"}
                     className="mt-10 w-full bg-blue-600"

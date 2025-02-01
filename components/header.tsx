@@ -62,8 +62,9 @@ export function Header() {
           <SignedOut>
             <SignInButton
               mode="modal"
-              afterSignInUrl="/dashboard/files"
-              afterSignUpUrl="/dashboard/files"
+              fallbackRedirectUrl={"/dashboard/files"}
+              signUpFallbackRedirectUrl={"/dashboard/files"}
+              signUpForceRedirectUrl={"/dashboard/files"}
             >
               <Button>Sign In</Button>
             </SignInButton>
