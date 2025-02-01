@@ -82,6 +82,24 @@ http.route({
 });
 
 http.route({
+  path: "/sign-in",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const origin = request.headers.get("Origin");
+    return new Response(null, {
+      status: 200,
+      headers: new Headers({
+        "Access-Control-Allow-Origin": origin || process.env.CLIENT_ORIGIN!,
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        Vary: "Origin",
+      }),
+    });
+  }),
+});
+
+http.route({
   path: "/clerk",
   method: "OPTIONS",
   handler: httpAction(async (ctx, request) => {
