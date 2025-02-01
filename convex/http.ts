@@ -8,6 +8,7 @@ const http = httpRouter();
 http.route({
   path: "/clerk",
   method: "POST",
+
   handler: httpAction(async (ctx, request) => {
     const payloadString = await request.text();
     const headerPayload = request.headers;
@@ -62,6 +63,11 @@ http.route({
 
       return new Response(null, {
         status: 200,
+        headers: new Headers({
+          // e.g. https://mywebsite.com, configured on your Convex dashboard
+          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN!,
+          Vary: "origin",
+        }),
       });
     } catch (err) {
       console.error(err);
