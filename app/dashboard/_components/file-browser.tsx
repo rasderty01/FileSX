@@ -89,8 +89,6 @@ export default function FileBrowser({
   favoritesOnly?: boolean;
   deletedOnly?: boolean;
 }) {
-  const { isAuthenticated } = useConvexAuth();
-  console.log(isAuthenticated);
   const organization = useOrganization();
   const user = useUser();
   const [query, setQuery] = useState("");
@@ -100,8 +98,6 @@ export default function FileBrowser({
   let orgId: string | undefined = undefined;
 
   if (organization.isLoaded && user.isLoaded) {
-    console.log("organization", organization);
-    console.log("user", user);
     orgId = organization.organization?.id ?? user.user?.id;
   }
 

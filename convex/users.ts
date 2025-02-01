@@ -11,7 +11,6 @@ export async function getUser(
   ctx: QueryCtx | MutationCtx,
   tokenIdentifier: string,
 ) {
-  console.log("server identity", await ctx.auth.getUserIdentity());
   const user = await ctx.db
     .query("users")
     .withIndex("by_tokenIdentifier", (q) =>
