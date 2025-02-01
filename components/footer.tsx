@@ -17,7 +17,7 @@ export function Footer() {
             Privacy Policy
           </Link>
           <Link
-            href={"/terms-of-service"}
+            href={"/tos"}
             className={cn(buttonVariants({ size: "sm", variant: "link" }))}
           >
             Terms of Service
