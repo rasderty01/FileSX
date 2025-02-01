@@ -1,7 +1,7 @@
 export default {
   providers: [
     {
-      domain: "https://fitting-asp-7.clerk.accounts.dev",
+      domain: process.env.CLERK_JWT_ISSUER_DOMAIN,
       applicationID: "convex",
     },
   ],
