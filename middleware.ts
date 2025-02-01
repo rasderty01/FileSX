@@ -3,18 +3,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
-
-clerkMiddleware({
-  authorizedParties: [
-    "https://filesx.printrail.com",
-    "https://accounts.filesx.printrail.com",
-  ],
-});
-
 export default clerkMiddleware(async (auth, request) => {
-  if (isProtectedRoute(request)) await auth.protect();
-
   return NextResponse.next();
 });
 

@@ -1,7 +1,7 @@
 "use client";
 import { api } from "@/convex/_generated/api";
 import { useOrganization, useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 
 import Image from "next/image";
 import { Grid2X2, Loader2, Table2 } from "lucide-react";
@@ -89,6 +89,8 @@ export default function FileBrowser({
   favoritesOnly?: boolean;
   deletedOnly?: boolean;
 }) {
+  const { isAuthenticated } = useConvexAuth();
+  console.log(isAuthenticated);
   const organization = useOrganization();
   const user = useUser();
   const [query, setQuery] = useState("");
