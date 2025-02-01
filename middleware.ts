@@ -5,9 +5,18 @@ import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 
-export default clerkMiddleware(async (auth, request) => {
-  if (isProtectedRoute(request)) await auth.protect();
-});
+export default clerkMiddleware(
+  async (auth, request) => {
+    if (isProtectedRoute(request)) await auth.protect();
+  },
+  {
+    debug: true,
+    authorizedParties: [
+      "https://filesx.printrail.com",
+      "https://accounts.filesx.printrail.com",
+    ],
+  },
+);
 
 export const config = {
   matcher: [
