@@ -67,6 +67,10 @@ http.route({
 
       return new Response(null, {
         status: 200,
+        headers: new Headers({
+          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN!,
+          Vary: "origin",
+        }),
       });
     } catch (err) {
       console.error(err);
@@ -74,6 +78,24 @@ http.route({
         status: 400,
       });
     }
+  }),
+});
+
+http.route({
+  path: "/clerk",
+  method: "OPTIONS",
+  handler: httpAction(async (ctx, request) => {
+    return new Response(null, {
+      status: 204,
+      headers: new Headers({
+        "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN!,
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers":
+          "Content-Type, svix-id, svix-timestamp, svix-signature",
+        "Access-Control-Max-Age": "86400", // 24 hours
+        Vary: "Origin",
+      }),
+    });
   }),
 });
 
