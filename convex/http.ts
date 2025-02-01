@@ -12,7 +12,7 @@ http.route({
   handler: httpAction(async (ctx, request) => {
     const payloadString = await request.text();
     const headerPayload = request.headers;
-
+    console.log("server identity", await ctx.auth.getUserIdentity());
     try {
       const result = await ctx.runAction(internal.clerk.fulfill, {
         payload: payloadString,
@@ -27,8 +27,9 @@ http.route({
       //add guest function
       switch (result.type) {
         case "user.created":
+          console.log("server identity", await ctx.auth.getUserIdentity());
           await ctx.runMutation(internal.users.createUser, {
-            tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.id}`,
+            tokenIdentifier: `https://${process.env.CLERK_JWT_ISSUER_DOMAIN}|${result.data.id}`,
             name: `${result.data.first_name ?? ""} ${result.data.last_name ?? ""}`,
             image: result.data.image_url,
           });
@@ -36,8 +37,9 @@ http.route({
           break;
 
         case "user.updated":
+          console.log("server identity", await ctx.auth.getUserIdentity());
           await ctx.runMutation(internal.users.updateUser, {
-            tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.id}`,
+            tokenIdentifier: `https://${process.env.CLERK_JWT_ISSUER_DOMAIN}|${result.data.id}`,
             name: `${result.data.first_name ?? ""} ${result.data.last_name ?? ""}`,
             image: result.data.image_url,
           });
@@ -45,15 +47,17 @@ http.route({
           break;
 
         case "organizationMembership.created":
+          console.log("server identity", await ctx.auth.getUserIdentity());
           await ctx.runMutation(internal.users.addOrgIdToUser, {
-            tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.public_user_data.user_id}`,
+            tokenIdentifier: `https://${process.env.CLERK_JWT_ISSUER_DOMAIN}|${result.data.public_user_data.user_id}`,
             orgId: result.data.organization.id,
             role: result.data.role === "admin" ? "admin" : "member",
           });
 
         case "organizationMembership.updated":
+          console.log("server identity", await ctx.auth.getUserIdentity());
           await ctx.runMutation(internal.users.updateRoleInOrgForUser, {
-            tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.public_user_data.user_id}`,
+            tokenIdentifier: `https://${process.env.CLERK_JWT_ISSUER_DOMAIN}|${result.data.public_user_data.user_id}`,
             orgId: result.data.organization.id,
             role: result.data.role === "org:admin" ? "admin" : "member",
           });
@@ -63,11 +67,6 @@ http.route({
 
       return new Response(null, {
         status: 200,
-        headers: new Headers({
-          // e.g. https://mywebsite.com, configured on your Convex dashboard
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN!,
-          Vary: "origin",
-        }),
       });
     } catch (err) {
       console.error(err);
