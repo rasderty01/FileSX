@@ -81,40 +81,4 @@ http.route({
   }),
 });
 
-http.route({
-  path: "/sign-in",
-  method: "POST",
-  handler: httpAction(async (ctx, request) => {
-    const origin = request.headers.get("Origin");
-    return new Response(null, {
-      status: 200,
-      headers: new Headers({
-        "Access-Control-Allow-Origin": origin || process.env.CLIENT_ORIGIN!,
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        Vary: "Origin",
-      }),
-    });
-  }),
-});
-
-http.route({
-  path: "/clerk",
-  method: "OPTIONS",
-  handler: httpAction(async (ctx, request) => {
-    return new Response(null, {
-      status: 204,
-      headers: new Headers({
-        "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN!,
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers":
-          "Content-Type, svix-id, svix-timestamp, svix-signature",
-        "Access-Control-Max-Age": "86400", // 24 hours
-        Vary: "Origin",
-      }),
-    });
-  }),
-});
-
 export default http;

@@ -6,9 +6,30 @@ import { NextResponse } from "next/server";
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 
 export default clerkMiddleware(async (auth, request) => {
+  // Add CORS headers for authentication requests
+  if (request.method === "OPTIONS") {
+    const response = new NextResponse(null, { status: 204 });
+    response.headers.set(
+      "Access-Control-Allow-Origin",
+      "https://accounts.filesx.printrail.com",
+    );
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    response.headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+    );
+    response.headers.set("Access-Control-Max-Age", "86400");
+    return response;
+  }
+
   if (isProtectedRoute(request)) await auth.protect();
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set(
+    "Access-Control-Allow-Origin",
+    "https://accounts.filesx.printrail.com",
+  );
+  return response;
 });
 
 export const config = {
