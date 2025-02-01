@@ -98,6 +98,8 @@ export default function FileBrowser({
   let orgId: string | undefined = undefined;
 
   if (organization.isLoaded && user.isLoaded) {
+    console.log("organization", organization);
+    console.log("user", user);
     orgId = organization.organization?.id ?? user.user?.id;
   }
 

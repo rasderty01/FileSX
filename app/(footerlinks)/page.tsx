@@ -168,8 +168,6 @@ export default function LandingPage() {
                   </span>
                 </p>
                 <SignUpButton
-                  fallbackRedirectUrl={"/dashboard/files"}
-                  forceRedirectUrl={"/dashboard/files"}
                   signInFallbackRedirectUrl={"/dashboard/files"}
                   signInForceRedirectUrl={"/dashboard/files"}
                 >
