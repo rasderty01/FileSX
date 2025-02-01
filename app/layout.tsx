@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import ConvexClientProvider from "@/components/ConvexClientProvider";
+import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import { Header } from "@/components/header";
 import { Toaster } from "@/components/ui/toaster";
 import { Footer } from "@/components/footer";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,12 +22,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ConvexClientProvider>
-          <Toaster />
-          <Header />
-          {children}
-          <Footer />
-        </ConvexClientProvider>
+        <ClerkProvider dynamic>
+          <ConvexClientProvider>
+            <Toaster />
+            <Header />
+            {children}
+            <Footer />
+          </ConvexClientProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
